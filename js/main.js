@@ -44,7 +44,7 @@ function initRequests() {
 }
 
 function renderPipeLines(data) {
-  console.log(data);
+  // console.log(data);
   data.forEach(function(pipe) {
     var newPipe =
     MAP.geoObjects.add(
@@ -75,7 +75,7 @@ function renderOilStorage(data) {
 
 function renderOilSump(data) {
   if (data) {
-    console.log(data);
+    // console.log(data);
     data.forEach(function(oilSump) {
       var newOilSump = new ymaps.Placemark(oilSump.address, {
         hintContent: oilSump.title
@@ -92,13 +92,12 @@ function renderOilSump(data) {
 
 function renderRoads(data) {
   if (data) {
-    // console.log(data);
+    console.log(data);
     data.forEach(function(road) {
       let _road = [];
       if (road.oilstorage_point) _road.push(road.oilstorage_point);
       if (road.oilsump_point) _road.push(road.oilsump_point);
       if (road.factory_point) _road.push(road.factory_point);
-      road.
       ymaps.route([..._road], {
         viaIndexes: [2,3],
       }).then(
