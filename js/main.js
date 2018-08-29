@@ -95,9 +95,10 @@ function renderRoads(data) {
     console.log(data);
     data.forEach(function(road) {
       let _road = [];
-      if (road.oilstorage_point) _road.push(road.oilstorage_point);
-      if (road.oilsump_point) _road.push(road.oilsump_point);
-      if (road.factory_point) _road.push(road.factory_point);
+      if (road.oilstorage_point !== "None") _road.push(road.oilstorage_point);
+      if (road.oilsump_point !== "None") _road.push(road.oilsump_point);
+      if (road.factory_point !== "None") _road.push(road.factory_point);
+      console.log(_road);
       ymaps.route([..._road], {
         viaIndexes: [2,3],
       }).then(
