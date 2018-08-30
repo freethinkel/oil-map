@@ -42,10 +42,6 @@ function initRequests() {
   }).then(headerMiddleware)
   .then(renderPipeLines).catch(errorHandler);
 
-  // fetch(API_URL+'getRoad/', {
-  //   method: 'get'
-  // }).then(headerMiddleware)
-  // .then(renderRoads).catch(errorHandler);
 }
 
 function renderFactorys(data) {
