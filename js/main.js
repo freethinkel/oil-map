@@ -22,60 +22,54 @@ function initRequests() {
   }).then(headerMiddleware)
   .then(renderFactorys).catch(errorHandler);
 
-  fetch(API_URL+'getRoad/', {
+  fetch(API_URL + 'getSump/', {
     method: 'get'
   }).then(headerMiddleware)
-  .then(renderRoads).catch(errorHandler);
+  .then(renderSump).catch(errorHandler);
 
-  fetch(API_URL + 'getOilSump/', {
+  fetch(API_URL + 'getStorage/', {
     method: 'get'
   }).then(headerMiddleware)
-  .then(renderOilSump).catch(errorHandler);
+  .then(renderStorage).catch(errorHandler);
 
-  fetch(API_URL + 'getOilStorage/', {
+  fetch(API_URL + 'getPetrol/', {
     method: 'get'
   }).then(headerMiddleware)
-  .then(renderOilStorage).catch(errorHandler);
+  .then(renderPetrol).catch(errorHandler);
 
   fetch(API_URL + 'getLine/', {
     method: 'get'
   }).then(headerMiddleware)
   .then(renderPipeLines).catch(errorHandler);
+
+  // fetch(API_URL+'getRoad/', {
+  //   method: 'get'
+  // }).then(headerMiddleware)
+  // .then(renderRoads).catch(errorHandler);
 }
 
-function renderPipeLines(data) {
-  // console.log(data);
-  data.forEach(function(pipe) {
-    var newPipe =
-    MAP.geoObjects.add(
-      new ymaps.Polyline([pipe.factory_point, pipe.oilstorage_point, pipe.oilsump_point], {}, {
-      strokeWidth: Math.round(pipe.percent/10),
-      strokeColor: '#555',
-    })
-    );
-  })
-}
-
-function renderOilStorage(data) {
-  if (data) {
-    // console.log(data);
-    data.forEach(function(oilStorage) {
-      var newOilStorage = new ymaps.Placemark(oilStorage.address, {
-        hintContent: oilStorage.title
+function renderFactorys(data) {
+  if (data){
+    console.log('factorys');
+    console.log(data);
+    data.forEach(function(factory) {
+      var myGeoObject = new ymaps.Placemark(factory.address, {
+        hintContent: factory.title
       }, {
         iconLayout: 'default#image',
-        iconImageHref: 'assets/icons/oil-storage.svg',
-        iconImageSize: [40, 50],
-        iconImageOffset: [-15, -55]
+        iconImageHref: 'assets/icons/oil-factory.svg',
+        iconImageSize: [50, 65],
+        iconImageOffset: [-47, -57]
       });
-      MAP.geoObjects.add(newOilStorage);
+      MAP.geoObjects.add(myGeoObject);
     });
   }
 }
 
-function renderOilSump(data) {
+function renderSump(data) {
   if (data) {
-    // console.log(data);
+    console.log('sump');
+    console.log(data);
     data.forEach(function(oilSump) {
       var newOilSump = new ymaps.Placemark(oilSump.address, {
         hintContent: oilSump.title
@@ -90,15 +84,78 @@ function renderOilSump(data) {
   }
 }
 
+
+function renderStorage(data) {
+  if (data) {
+    console.log('storage');
+    console.log(data);
+    data.forEach(function(oilStorage) {
+      var newOilStorage = new ymaps.Placemark(oilStorage.address, {
+        hintContent: oilStorage.title
+      }, {
+        iconLayout: 'default#image',
+        iconImageHref: 'assets/icons/oil-storage.svg',
+        iconImageSize: [40, 50],
+        iconImageOffset: [-15, -55]
+      });
+      MAP.geoObjects.add(newOilStorage);
+    });
+  }
+}
+
+function renderPetrol(data) {
+  if (data) {
+    console.log('petrol');
+    console.log(data);
+    data.forEach(function(oilPetrol) {
+      var newOilPetrol = new ymaps.Placemark(oilPetrol.address, {
+        hintContent: oilPetrol.title
+      }, {
+        iconLayout: 'default#image',
+        iconImageHref: 'assets/icons/oil-petrol.svg',
+        iconImageSize: [50, 65],
+        iconImageOffset: [-47, -57]
+      });
+      MAP.geoObjects.add(newOilPetrol);
+    });
+  }
+}
+
+function renderPipeLines(data) {
+  console.log('line');
+  console.log(data);
+  renderRoads(data);
+  data.forEach(function(pipe) {
+    var _line = [pipe.start_point];
+    if (pipe.point && pipe.point.length) {
+      pipe.point.forEach(function(_point) {
+        _line.push(_point.address);
+      });
+    }
+    _line.push(pipe.end_point);
+    MAP.geoObjects.add(
+      new ymaps.Polyline([..._line], {}, {
+      strokeWidth: Math.round(pipe.percent/10),
+      strokeColor: '#555',
+    })
+    );
+  })
+}
+
 function renderRoads(data) {
   if (data) {
+    console.log('road');
     console.log(data);
     data.forEach(function(road) {
       let _road = [];
-      if (road.oilstorage_point !== "None") _road.push(road.oilstorage_point);
-      if (road.oilsump_point !== "None") _road.push(road.oilsump_point);
-      if (road.factory_point !== "None") _road.push(road.factory_point);
-      console.log(_road);
+      _road.push(road.start_point);
+      if (road.point && road.point.length) {
+        road.point.forEach(function(_point) {
+          _road.push(_point.address);
+        })
+      }
+      _road.push(road.end_point);
+
       ymaps.route([..._road], {
         viaIndexes: [2,3],
       }).then(
@@ -108,8 +165,9 @@ function renderRoads(data) {
             strokeColor: '#0072bc',
             opacity: 0.9
           });
-          route.getWayPoints().get(0).options.set("iconLayout", null);
-          route.getWayPoints().get(1).options.set("iconLayout", null);
+          _road.forEach(function(el, i) {
+            route.getWayPoints().get(i).options.set("iconLayout", null);
+          })
           MAP.geoObjects.add(route);
         },
         function(error) {
@@ -120,22 +178,6 @@ function renderRoads(data) {
   }
 }
 
-function renderFactorys(data) {
-  if (data){
-      // console.log(data);
-      data.forEach(function(factory) {
-        var myGeoObject = new ymaps.Placemark(factory.address, {
-          hintContent: factory.title
-        }, {
-          iconLayout: 'default#image',
-          iconImageHref: 'assets/icons/oil-factory.svg',
-          iconImageSize: [50, 65],
-          iconImageOffset: [-47, -57]
-        });
-        MAP.geoObjects.add(myGeoObject);
-      });
-  }
-}
 
 function headerMiddleware(ans) {
   if (ans.headers.get('Content-Type') === 'application/json') return ans.json();
