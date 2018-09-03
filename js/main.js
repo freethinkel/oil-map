@@ -1,4 +1,7 @@
 var MAP;
+var ROAD;
+
+var ROAD_INFO = {};
 
 ymaps.ready(init);
 
@@ -49,15 +52,18 @@ function renderFactorys(data) {
     console.log('factorys');
     console.log(data);
     data.forEach(function(factory) {
-      var myGeoObject = new ymaps.Placemark(factory.address, {
+      var newOilFactory = new ymaps.Placemark(factory.address, {
         hintContent: factory.title
       }, {
         iconLayout: 'default#image',
         iconImageHref: 'assets/icons/oil-factory.svg',
         iconImageSize: [50, 65],
-        iconImageOffset: [-47, -57]
+        iconImageOffset: [-22, -62]
       });
-      MAP.geoObjects.add(myGeoObject);
+      newOilFactory.events.add('click', function () {
+        selectedMarks.add(newOilFactory.geometry._coordinates, newOilFactory.properties._data.hintContent);
+      });
+      MAP.geoObjects.add(newOilFactory);
     });
   }
 }
@@ -73,7 +79,10 @@ function renderSump(data) {
         iconLayout: 'default#image',
         iconImageHref: 'assets/icons/oil-sump.svg',
         iconImageSize: [50, 65],
-        iconImageOffset: [-47, -57]
+        iconImageOffset: [-22, -62]
+      });
+      newOilSump.events.add('click', function () {
+        selectedMarks.add(newOilSump.geometry._coordinates, newOilSump.properties._data.hintContent);
       });
       MAP.geoObjects.add(newOilSump);
     });
@@ -91,13 +100,18 @@ function renderStorage(data) {
       }, {
         iconLayout: 'default#image',
         iconImageHref: 'assets/icons/oil-storage.svg',
-        iconImageSize: [40, 50],
-        iconImageOffset: [-15, -55]
+        iconImageSize: [50, 65],
+        iconImageOffset: [-22, -62]
+      });
+      newOilStorage.events.add('click', function () {
+        selectedMarks.add(newOilStorage.geometry._coordinates, newOilStorage.properties._data.hintContent);
       });
       MAP.geoObjects.add(newOilStorage);
     });
   }
 }
+
+
 
 function renderPetrol(data) {
   if (data) {
@@ -110,7 +124,10 @@ function renderPetrol(data) {
         iconLayout: 'default#image',
         iconImageHref: 'assets/icons/oil-petrol.svg',
         iconImageSize: [50, 65],
-        iconImageOffset: [-47, -57]
+        iconImageOffset: [-22, -62]
+      });
+      newOilPetrol.events.add('click', function () {
+        selectedMarks.add(newOilPetrol.geometry._coordinates, newOilPetrol.properties._data.hintContent);
       });
       MAP.geoObjects.add(newOilPetrol);
     });
@@ -120,7 +137,6 @@ function renderPetrol(data) {
 function renderPipeLines(data) {
   console.log('line');
   console.log(data);
-  renderRoads(data);
   data.forEach(function(pipe) {
     var _line = [pipe.start_point];
     if (pipe.point && pipe.point.length) {
@@ -140,37 +156,36 @@ function renderPipeLines(data) {
 
 function renderRoads(data) {
   if (data) {
-    console.log('road');
-    console.log(data);
+    var _road = [];
     data.forEach(function(road) {
-      let _road = [];
-      _road.push(road.start_point);
-      if (road.point && road.point.length) {
-        road.point.forEach(function(_point) {
-          _road.push(_point.address);
-        })
+      if (road.coord && road.coord.length) {
+        _road.push(road.coord);
       }
-      _road.push(road.end_point);
-
-      ymaps.route([..._road], {
-        viaIndexes: [2,3],
-      }).then(
-        function(route) {
-          route.getPaths().options.set({
-            // Можно выставить настройки графики маршруту.
-            strokeColor: '#0072bc',
-            opacity: 0.9
-          });
-          _road.forEach(function(el, i) {
-            route.getWayPoints().get(i).options.set("iconLayout", null);
-          })
-          MAP.geoObjects.add(route);
-        },
-        function(error) {
-          console.error(error);
-        }
-      );
     });
+
+    ymaps.route(_road, {
+      viaIndexes: [2,3],
+    }).then(
+      function(route) {
+        route.getPaths().options.set({
+          // Можно выставить настройки графики маршруту.
+          strokeColor: '#0072bc',
+          opacity: 0.9
+        });
+        _road.forEach(function(el, i) {
+          route.getWayPoints().get(i).options.set("iconLayout", null);
+        });
+        ROAD_INFO.length = route.getLength()
+        ROAD_INFO.time = route.getTime();
+        ROAD && MAP.geoObjects.remove(ROAD);
+        MAP.geoObjects.add(ROAD = route);
+        renderRoadInfo();
+      },
+      function(error) {
+        console.error(error);
+      }
+    );
+
   }
 }
 

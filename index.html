@@ -9,8 +9,24 @@
   <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
 </head>
 <body>
+  <div class="map-coords-info-card">
+    <div class="map-coords-info-card-content">
+
+    </div>
+    <div class="map-coords-info-card-footer">
+      <div class="road-info">
+
+      </div>
+      <div class="btns-wrapper">
+        <button onclick="selectedMarks.clearAll()" class="btn secondary-btn">Очистить выбор</button>
+        <button onclick="showRoads()" class="btn primary-btn">Показать маршруты</button>
+      </div>
+    </div>
+  </div>
   <div class="main-map" id="map"></div>
   <script>window.API_URL = 'https://meekey.pythonanywhere.com/'</script>
+  <script src="./js/model.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/listener.js"></script>
 </body>
 </html>
