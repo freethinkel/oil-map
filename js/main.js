@@ -16,7 +16,26 @@ function init(){
   });
 
   initRequests();
+  initWS();
 }
+
+function initWS() {
+  var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+  var ws_path = ws_scheme + '://' + window.location.host;
+  var socket = new WebSocket(ws_path);
+
+  socket.onopen = function () {
+    console.log("Connected to socket");
+  };
+  socket.onclose = function () {
+    console.log("Disconnected from socket");
+  }
+
+  socket.onmessage = function(data) {
+    initRequests();
+  }
+}
+
 
 
 function initRequests() {
