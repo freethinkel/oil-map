@@ -20,7 +20,7 @@ function init(){
 }
 
 function initWS() {
-  var ws_path = 'ws://' + API_URL.substring(7, API_URL.length);
+  var ws_path = 'wss://' + API_URL.substring(7, API_URL.length);
   var socket = new WebSocket(ws_path);
 
   socket.onopen = function () {
